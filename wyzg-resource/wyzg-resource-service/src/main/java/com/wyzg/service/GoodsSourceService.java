@@ -8,6 +8,7 @@ import com.wyzg.mapper.GoodsSourceMapper;
 import com.wyzg.pojo.CarSource;
 import com.wyzg.pojo.GoodsSource;
 import com.wyzg.pojo.PageResult;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -22,20 +23,28 @@ public class GoodsSourceService {
     private GoodsSourceMapper goodsSourceMapper;
 
     /**
-     * 查询货源信息并完成分页
+     * 查询货源信息并完成分页，可实现按照id升序或降序，可通过goodsType和comment进行模糊查询
      * @param page
      * @param rows
      * @param sortBy
      * @return
      */
-    public PageResult<GoodsSource> queryGoodsByPage(Integer page, Integer rows, String sortBy) {
+    public PageResult<GoodsSource> queryGoodsByPage(Integer page, Integer rows,String sortBy,Boolean desc, String key) {
 
         //分页
         PageHelper.startPage(page,rows);
         //创建查询条件
         Example example = new Example(GoodsSource.class);
-        //默认排序
-        example.setOrderByClause("create_time");
+        //模糊查询
+        if(StringUtils.isNotBlank(key)){
+            example.createCriteria().andLike("goodsType","%" + key +"%").orLike("comment","%" + key + "%");
+        }
+        //按id选择降序或升序
+        if(StringUtils.isNotBlank(sortBy)){
+        String orderByClause = sortBy + (desc ? " DESC" : " ASC");
+        example.setOrderByClause(orderByClause);
+        }
+        //实现查询
         List<GoodsSource> sources = goodsSourceMapper.selectByExample(example);
         if(CollectionUtils.isEmpty(sources)){
             throw new WyzgException(ExceptionEnums.NO_CARSOURCE_COULD_USE);

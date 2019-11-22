@@ -23,7 +23,7 @@ public class CarSourceService {
     private CarSourceMapper carSourceMapper;
 
     /**
-     * 查询所有车源并分页
+     * 查询所有车源并分页，可实现按照id升序或降序，可通过publishName和comment进行模糊查询
      * @return
      */
     public PageResult<CarSource> queryCarByPage(Integer page, Integer rows, String sortBy,Boolean desc,String key) {
@@ -31,16 +31,16 @@ public class CarSourceService {
         PageHelper.startPage(page,rows);
         //创建查询条件
         Example example = new Example(CarSource.class);
-        // 过滤
+        //模糊查询，先过滤再排序，减少查询数据量
         if (StringUtils.isNotBlank(key)) {
-            example.createCriteria().andLike("name", "%" + key + "%")
-                    .orEqualTo("letter", key);
+            example.createCriteria().andLike("publishName", "%" + key + "%").orLike("comment","%" + key + "%");
         }
-        //排序
+        //按id选择降序或升序
         if(StringUtils.isNotBlank(sortBy)){
-            String orderByClause = sortBy + (desc ? "DESC" : "ASC");
+            String orderByClause = sortBy + (desc ? " DESC" : " ASC");
             example.setOrderByClause(orderByClause);
         }
+        //实现查询
         List<CarSource> sources = carSourceMapper.selectByExample(example);
         if(CollectionUtils.isEmpty(sources)){
             throw new WyzgException(ExceptionEnums.NO_CARSOURCE_COULD_USE);

@@ -1,5 +1,6 @@
 package com.wyzg.controller;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.wyzg.pojo.CarSource;
 import com.wyzg.pojo.GoodsSource;
 import com.wyzg.pojo.PageResult;
@@ -24,9 +25,11 @@ public class GoodsSourceController {
     public ResponseEntity<PageResult<GoodsSource>> queryGoodsByPage(
             @RequestParam(value = "page", defaultValue = "1") Integer page,
             @RequestParam(value = "rows", defaultValue = "5") Integer rows,
-            @RequestParam(value = "sortBy",defaultValue = "id",required = false)String sortBy){
+            @RequestParam(value = "sortBy",defaultValue = "id",required = false)String sortBy,
+            @RequestParam(value = "desc",defaultValue = "true") Boolean desc,
+            @RequestParam(value = "key",required = false)String key){
 
-        PageResult<GoodsSource> goodsSources = goodsSourceService.queryGoodsByPage(page,rows,sortBy);
+        PageResult<GoodsSource> goodsSources = goodsSourceService.queryGoodsByPage(page,rows,sortBy,desc,key);
         return ResponseEntity.ok(goodsSources);
     }
 
